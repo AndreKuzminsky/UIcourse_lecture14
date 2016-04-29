@@ -5,7 +5,6 @@
         .factory('GithubService', GithubService);
 
     function GithubService($http) {
-        var SERVER_URL = 'http://api.github.com';
         var users = [{
             login: 'AndreKuzminsky',
             name: 'Andre',
@@ -13,31 +12,34 @@
             location: 'Lviv',
             public_repos: 11
         }];
-
+        var user = null;
         return {
-            getUser: getUser,
-            users: users
+            searchUser: searchUser,
+            users: users,
+            user: user
         };
 
         //
         // Public methods
         //
-
-        function getUser(username) {
+        function searchUser(name) {
+            var SERVER_URL = 'http://api.github.com';
             return $http({
-                method: 'GET',
-                url: SERVER_URL + '/users/' + username
-            });
+                    method: 'GET',
+                    url: SERVER_URL + '/users/' + name
+                }).then(function(response) {
+                    user = response.data;
+                    users.push({
+                        login: user.login,
+                        name: user.name,
+                        avatar_url: user.avatar_url,
+                        location: user.location,
+                        public_repos: user.public_repos
+                    });
+                })
+                .catch(function() {
+                    $location.path('/not-found');
+                })
         }
-
-        /*function addUser(name, shop, quantity) {
-            userList.push({
-                login: '',
-                name: '',
-                avatar_url: '',
-                location: '',
-                public_repos: ''
-            });
-        }*/
     }
 }());
